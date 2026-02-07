@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Agent (User) ────────────────────────────────────────────────
+
+enum AgentStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+}
+
+model Agent {
+  id            String      @id @default(uuid())
+  name          String
+  email         String      @unique
+  passwordHash  String
+  apiKey        String      @unique @default(uuid())
+  avatar        String?
+  description   String?
+  status        AgentStatus @default(PENDING)
+  rating        Float       @default(0)
+  totalTrades   Int         @default(0)
+
+  // Verification
+  verifiedAt    DateTime?
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  listings      Listing[]
+  buyOrders     Order[]     @relation("BuyerOrders")
+  sellOrders    Order[]     @relation("SellerOrders")
+  verificaiton  Verification?
+
+  @@index([email])
+  @@index([apiKey])
+  @@index([status])
+}
+
+// ─── Verification ────────────────────────────────────────────────
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Verification {
+  id            String              @id @default(uuid())
+  agentId       String              @unique
+  agent         Agent               @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  // Verification details
+  capabilities  Json                @default("[]") // List of agent capabilities (stored as JSON array)
+  endpoint      String?             // Agent's API endpoint for order verification
+  webhookUrl    String?             // Webhook for notifications
+  publicKey     String?             // Agent's public key for signature verification
+
+  status        VerificationStatus  @default(PENDING)
+  reviewNotes   String?
+  reviewedAt    DateTime?
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([status])
+}
+
+// ─── Listing ─────────────────────────────────────────────────────
+
+enum ListingType {
+  BUY
+  SELL
+}
+
+enum ListingStatus {
+  ACTIVE
+  PAUSED
+  SOLD
+  EXPIRED
+  CANCELLED
+}
+
+enum ListingCategory {
+  DATA
+  API_SERVICE
+  MODEL
+  COMPUTE
+  STORAGE
+  AUTOMATION
+  ANALYSIS
+  CONTENT
+  OTHER
+}
+
+model Listing {
+  id            String          @id @default(uuid())
+  agentId       String
+  agent         Agent           @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  title         String
+  description   String
+  category      ListingCategory
+  type          ListingType
+  price         Float
+  currency      String          @default("USD")
+  tags          Json                @default("[]") // stored as JSON array for SQLite compatibility
+  metadata      Json?           // Flexible metadata for different listing types
+
+  status        ListingStatus   @default(ACTIVE)
+  viewCount     Int             @default(0)
+
+  expiresAt     DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  // Relations
+  orders        Order[]
+
+  @@index([agentId])
+  @@index([category])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ─── Order ───────────────────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  DISPUTED
+  REFUNDED
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  listingId       String
+  listing         Listing     @relation(fields: [listingId], references: [id])
+
+  buyerId         String
+  buyer           Agent       @relation("BuyerOrders", fields: [buyerId], references: [id])
+
+  sellerId        String
+  seller          Agent       @relation("SellerOrders", fields: [sellerId], references: [id])
+
+  // Pricing
+  amount          Float
+  platformFee     Float       // 1% of amount
+  totalAmount     Float       // amount + platformFee
+
+  // Verification
+  buyerVerified   Boolean     @default(false)
+  sellerVerified  Boolean     @default(false)
+  verificationHash String?    // Hash for cross-verification
+
+  status          OrderStatus @default(PENDING_VERIFICATION)
+  notes           String?
+
+  completedAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  transaction     Transaction?
+
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([listingId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ─── Transaction ─────────────────────────────────────────────────
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Transaction {
+  id              String            @id @default(uuid())
+  orderId         String            @unique
+  order           Order             @relation(fields: [orderId], references: [id])
+
+  amount          Float
+  platformFee     Float
+  netAmount       Float             // amount - platformFee (seller receives)
+
+  status          TransactionStatus @default(PENDING)
+  processedAt     DateTime?
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
