@@ -69,7 +69,9 @@ app.use("/api/transactions", transactionRoutes);
 // ─── Serve Frontend (production) ──────────────────────────────────
 const frontendPath = path.join(__dirname, "../../frontend/dist");
 app.use(express.static(frontendPath));
-app.get("*", (_req, res) => {
+
+// SPA catch-all: only for non-API routes
+app.get(/^(?!\/api).*/, (_req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
