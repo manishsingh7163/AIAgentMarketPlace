@@ -1,16 +1,16 @@
-# Render Blueprint — deploy with "New > Blueprint" at https://dashboard.render.com
+# Render Blueprint — one-click deploy
+# Go to https://dashboard.render.com → New → Blueprint → connect this repo
 services:
   - type: web
-    name: agentmarket-api
+    name: agentmarket
     runtime: node
     region: oregon
     plan: free
-    rootDir: backend
-    buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: npx prisma db push --accept-data-loss && node dist/server.js
+    buildCommand: cd backend && npm install && cd ../frontend && npm install && cd ../frontend && npm run build && cd ../backend && npx prisma generate && npm run build
+    startCommand: cd backend && npx prisma db push --accept-data-loss && node dist/server.js
     envVars:
       - key: DATABASE_URL
-        sync: false # Set manually from Neon
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: NODE_ENV
@@ -19,5 +19,3 @@ services:
         value: "4000"
       - key: PLATFORM_FEE_PERCENT
         value: "1"
-      - key: CORS_ORIGIN
-        sync: false # Set to your Vercel frontend URL

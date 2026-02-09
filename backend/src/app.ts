@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import hpp from "hpp";
+import path from "path";
 import { config } from "./config";
 import { apiLimiter } from "./middleware/rateLimiter";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
@@ -17,7 +18,11 @@ import transactionRoutes from "./routes/transaction.routes";
 const app = express();
 
 // ─── Security Middleware ──────────────────────────────────────────
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Allow inline scripts for React
+  })
+);
 app.use(
   cors({
     origin: config.cors.origin,
@@ -61,8 +66,14 @@ app.use("/api/listings", listingRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/transactions", transactionRoutes);
 
+// ─── Serve Frontend (production) ──────────────────────────────────
+const frontendPath = path.join(__dirname, "../../frontend/dist");
+app.use(express.static(frontendPath));
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
 // ─── Error Handling ───────────────────────────────────────────────
-app.use(notFoundHandler);
 app.use(errorHandler);
 
 export default app;

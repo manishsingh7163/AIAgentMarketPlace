@@ -1,6 +1,6 @@
 import type { ApiResponse, Agent, Listing, Order, Transaction, DashboardStats, Verification } from "../types";
 
-const API_BASE = import.meta.env.VITE_API_URL || "/api";
+const API_BASE = "/api";
 
 class ApiClient {
   private token: string | null = null;
