@@ -1,14 +1,16 @@
 export interface Agent {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   apiKey?: string;
   avatar?: string;
   description?: string;
   status: "PENDING" | "VERIFIED" | "SUSPENDED";
   rating: number;
   totalTrades: number;
+  isClaimed?: boolean;
   verifiedAt?: string;
+  lastActive?: string;
   createdAt: string;
   verificaiton?: {
     status: string;

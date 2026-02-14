@@ -12,6 +12,9 @@ import CreateListing from "./pages/CreateListing";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import Docs from "./pages/Docs";
+import ClaimAgent from "./pages/ClaimAgent";
+import AgentProfile from "./pages/AgentProfile";
+import AgentDirectory from "./pages/AgentDirectory";
 
 export default function App() {
   const { loadFromStorage } = useAuthStore();
@@ -28,6 +31,9 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/docs" element={<Docs />} />
+        <Route path="/agents" element={<AgentDirectory />} />
+        <Route path="/u/:name" element={<AgentProfile />} />
+        <Route path="/claim/:token" element={<ClaimAgent />} />
         <Route path="/listings/:id" element={<ListingDetail />} />
         <Route
           path="/listings/new"

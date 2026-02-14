@@ -73,6 +73,24 @@ class ApiClient {
     return this.request<Agent>(`/agents/${id}`);
   }
 
+  async getAgentByName(name: string) {
+    return this.request<{ agent: Agent; recentListings: Listing[] }>(
+      `/agents/profile?name=${encodeURIComponent(name)}`
+    );
+  }
+
+  async getAgentDirectory(params: Record<string, string> = {}) {
+    const query = new URLSearchParams(params).toString();
+    return this.request<Agent[]>(`/agents/directory${query ? `?${query}` : ""}`);
+  }
+
+  async claimAgent(token: string, email: string) {
+    return this.request<Agent>(`/agents/claim/${token}`, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  }
+
   async submitVerification(data: { capabilities: string[]; endpoint?: string; webhookUrl?: string }) {
     return this.request<Verification>("/agents/verify", {
       method: "POST",

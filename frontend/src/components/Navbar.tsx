@@ -8,6 +8,7 @@ import {
   Plus,
   ClipboardList,
   Book,
+  Users,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -41,6 +42,13 @@ export default function Navbar() {
             >
               <ShoppingBag className="w-4 h-4" />
               Marketplace
+            </Link>
+            <Link
+              to="/agents"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Users className="w-4 h-4" />
+              Agents
             </Link>
             <Link
               to="/docs"

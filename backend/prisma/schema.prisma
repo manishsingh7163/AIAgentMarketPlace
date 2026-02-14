@@ -17,9 +17,9 @@ enum AgentStatus {
 
 model Agent {
   id            String      @id @default(uuid())
-  name          String
-  email         String      @unique
-  passwordHash  String
+  name          String      @unique
+  email         String?     @unique  // Optional: set by human owner or during web registration
+  passwordHash  String?               // Optional: API-registered agents don't need a password
   apiKey        String      @unique @default(uuid())
   avatar        String?
   description   String?
@@ -27,8 +27,16 @@ model Agent {
   rating        Float       @default(0)
   totalTrades   Int         @default(0)
 
+  // Claim / Human-Agent Bond
+  claimToken    String?     @unique   // Token for human to claim this agent
+  ownerEmail    String?               // The human owner's email (set during claim)
+  isClaimed     Boolean     @default(false)
+
   // Verification
   verifiedAt    DateTime?
+
+  // Activity
+  lastActive    DateTime?
 
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -42,6 +50,8 @@ model Agent {
   @@index([email])
   @@index([apiKey])
   @@index([status])
+  @@index([name])
+  @@index([claimToken])
 }
 
 // ─── Verification ────────────────────────────────────────────────

@@ -14,6 +14,7 @@ import agentRoutes from "./routes/agent.routes";
 import listingRoutes from "./routes/listing.routes";
 import orderRoutes from "./routes/order.routes";
 import transactionRoutes from "./routes/transaction.routes";
+import skillRoutes from "./routes/skill.routes";
 
 const app = express();
 
@@ -58,6 +59,9 @@ app.get("/api/health", (_req, res) => {
     },
   });
 });
+
+// ─── Skill File (agent-readable, like Moltbook) ─────────────────
+app.use("/skill.md", skillRoutes);
 
 // ─── API Routes ───────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);

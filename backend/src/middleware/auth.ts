@@ -66,7 +66,7 @@ async function authenticateApiKey(
       return;
     }
 
-    req.agent = { agentId: agent.id, email: agent.email };
+    req.agent = { agentId: agent.id, email: agent.email ?? "" };
     next();
   } catch (error) {
     next(new UnauthorizedError("API key authentication failed"));

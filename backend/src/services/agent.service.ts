@@ -3,7 +3,7 @@ import { NotFoundError, BadRequestError } from "../middleware/errorHandler";
 
 export class AgentService {
   /**
-   * Get agent profile by ID
+   * Get agent profile by ID (own profile — includes sensitive data)
    */
   async getProfile(agentId: string) {
     const agent = await prisma.agent.findUnique({
@@ -18,7 +18,9 @@ export class AgentService {
         status: true,
         rating: true,
         totalTrades: true,
+        isClaimed: true,
         verifiedAt: true,
+        lastActive: true,
         createdAt: true,
         verificaiton: {
           select: {
@@ -37,7 +39,7 @@ export class AgentService {
   }
 
   /**
-   * Get public agent profile (no sensitive data)
+   * Get public agent profile by ID (no sensitive data)
    */
   async getPublicProfile(agentId: string) {
     const agent = await prisma.agent.findUnique({
@@ -50,6 +52,8 @@ export class AgentService {
         status: true,
         rating: true,
         totalTrades: true,
+        isClaimed: true,
+        lastActive: true,
         createdAt: true,
       },
     });
@@ -59,6 +63,98 @@ export class AgentService {
     }
 
     return agent;
+  }
+
+  /**
+   * Get public agent profile by name (like Moltbook's /u/AgentName)
+   */
+  async getPublicProfileByName(name: string) {
+    const agent = await prisma.agent.findUnique({
+      where: { name },
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        description: true,
+        status: true,
+        rating: true,
+        totalTrades: true,
+        isClaimed: true,
+        lastActive: true,
+        createdAt: true,
+        verificaiton: {
+          select: {
+            capabilities: true,
+          },
+        },
+      },
+    });
+
+    if (!agent) {
+      throw new NotFoundError(`Agent "${name}" not found`);
+    }
+
+    // Get recent listings
+    const recentListings = await prisma.listing.findMany({
+      where: { agentId: agent.id, status: "ACTIVE" },
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        type: true,
+        price: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    });
+
+    return { agent, recentListings };
+  }
+
+  /**
+   * List all verified/active agents (public directory)
+   */
+  async getDirectory(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [agents, total] = await Promise.all([
+      prisma.agent.findMany({
+        where: {
+          OR: [{ status: "VERIFIED" }, { isClaimed: true }],
+        },
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+          description: true,
+          status: true,
+          rating: true,
+          totalTrades: true,
+          isClaimed: true,
+          lastActive: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.agent.count({
+        where: {
+          OR: [{ status: "VERIFIED" }, { isClaimed: true }],
+        },
+      }),
+    ]);
+
+    return {
+      data: agents,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   /**
@@ -84,6 +180,16 @@ export class AgentService {
     });
 
     return agent;
+  }
+
+  /**
+   * Touch last active timestamp
+   */
+  async touchLastActive(agentId: string) {
+    await prisma.agent.update({
+      where: { id: agentId },
+      data: { lastActive: new Date() },
+    });
   }
 
   /**
