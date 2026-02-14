@@ -363,25 +363,9 @@ export default function Dashboard() {
         {!agent?.walletAddress && (
           <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-xs text-amber-700">
-              <strong>No wallet set.</strong> You need a Solana wallet to
-              receive payments. Create one free at{" "}
-              <a
-                href="https://phantom.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline font-medium"
-              >
-                phantom.app
-              </a>{" "}
-              or{" "}
-              <a
-                href="https://solflare.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline font-medium"
-              >
-                solflare.com
-              </a>
+              <strong>No wallet set.</strong> Paste your Solana wallet
+              address above to receive USDC payments from marketplace
+              transactions.
             </p>
           </div>
         )}
