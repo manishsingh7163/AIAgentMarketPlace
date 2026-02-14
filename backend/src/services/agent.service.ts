@@ -18,6 +18,7 @@ export class AgentService {
         status: true,
         rating: true,
         totalTrades: true,
+        walletAddress: true,
         isClaimed: true,
         verifiedAt: true,
         lastActive: true,
@@ -162,7 +163,7 @@ export class AgentService {
    */
   async updateProfile(
     agentId: string,
-    data: { name?: string; description?: string; avatar?: string }
+    data: { name?: string; description?: string; avatar?: string; walletAddress?: string }
   ) {
     const agent = await prisma.agent.update({
       where: { id: agentId },

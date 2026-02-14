@@ -21,6 +21,13 @@ export const config = {
 
   platform: {
     feePercent: parseFloat(process.env.PLATFORM_FEE_PERCENT || "1"),
+    walletAddress: process.env.PLATFORM_WALLET_ADDRESS || "", // Solana wallet for receiving 1% fees
+  },
+
+  solana: {
+    rpcUrl: process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com",
+    usdcMint: process.env.USDC_MINT || "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC on Solana mainnet
+    network: process.env.SOLANA_NETWORK || "mainnet-beta",
   },
 
   rateLimit: {

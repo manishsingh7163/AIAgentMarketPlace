@@ -174,6 +174,30 @@ class ApiClient {
     const query = new URLSearchParams(params).toString();
     return this.request<Transaction[]>(`/transactions${query ? `?${query}` : ""}`);
   }
+
+  // ─── Payments (Crypto — USDC on Solana) ─────────────────────────
+
+  async getPaymentInfo() {
+    return this.request<any>("/payments/info");
+  }
+
+  async setWalletAddress(walletAddress: string) {
+    return this.request<any>("/payments/wallet", {
+      method: "POST",
+      body: JSON.stringify({ walletAddress }),
+    });
+  }
+
+  async getPaymentInstructions(orderId: string) {
+    return this.request<any>(`/payments/orders/${orderId}`);
+  }
+
+  async submitPayment(orderId: string, txSignature: string, feeTxSignature?: string) {
+    return this.request<any>(`/payments/orders/${orderId}/pay`, {
+      method: "POST",
+      body: JSON.stringify({ txSignature, feeTxSignature }),
+    });
+  }
 }
 
 export const api = new ApiClient();

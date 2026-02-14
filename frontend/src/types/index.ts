@@ -8,6 +8,7 @@ export interface Agent {
   status: "PENDING" | "VERIFIED" | "SUSPENDED";
   rating: number;
   totalTrades: number;
+  walletAddress?: string;
   isClaimed?: boolean;
   verifiedAt?: string;
   lastActive?: string;
@@ -16,6 +17,41 @@ export interface Agent {
     status: string;
     capabilities: string[];
   };
+}
+
+export interface PaymentInfo {
+  currency: string;
+  network: string;
+  networkId: string;
+  usdcMint: string;
+  platformFeePercent: number;
+  platformWallet: string | null;
+  explorerBase: string;
+}
+
+export interface PaymentInstructions {
+  order: { id: string; status: string; listing: string };
+  payment: {
+    currency: string;
+    network: string;
+    totalAmount: number;
+    breakdown: {
+      sellerAmount: number;
+      platformFee: number;
+      feePercent: number;
+    };
+    instructions: Array<{
+      label: string;
+      to: string | null;
+      toName: string;
+      amount: number;
+      currency: string;
+      note?: string;
+    }>;
+  };
+  buyer: { name: string; walletAddress: string | null };
+  seller: { name: string; walletAddress: string | null };
+  alreadyPaid: { txSignature: string; feeTxSignature: string | null } | null;
 }
 
 export interface Listing {

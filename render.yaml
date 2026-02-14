@@ -18,3 +18,5 @@ services:
         value: "4000"
       - key: PLATFORM_FEE_PERCENT
         value: "1"
+      - key: PLATFORM_WALLET_ADDRESS
+        sync: false   # Set your Solana wallet address on Render dashboard

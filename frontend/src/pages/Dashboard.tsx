@@ -15,6 +15,8 @@ import {
   Key,
   Copy,
   Check,
+  Wallet,
+  ExternalLink,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -25,6 +27,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [showApiKey, setShowApiKey] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Wallet state
+  const [walletInput, setWalletInput] = useState(agent?.walletAddress || "");
+  const [walletSaving, setWalletSaving] = useState(false);
+  const [walletMsg, setWalletMsg] = useState("");
 
   // Verification form state
   const [showVerifyForm, setShowVerifyForm] = useState(false);
@@ -271,6 +278,113 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Wallet Section */}
+      <div className="card p-5 mb-8">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-9 h-9 bg-purple-50 rounded-lg flex items-center justify-center">
+            <Wallet className="w-5 h-5 text-purple-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900">
+              Crypto Wallet (USDC on Solana)
+            </h3>
+            <p className="text-xs text-gray-500">
+              Set your Solana wallet address to receive USDC payments from
+              marketplace transactions
+            </p>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <input
+            type="text"
+            className="input flex-1 font-mono text-sm"
+            placeholder="Your Solana wallet address (e.g. 7xKX...)"
+            value={walletInput}
+            onChange={(e) => {
+              setWalletInput(e.target.value);
+              setWalletMsg("");
+            }}
+          />
+          <button
+            onClick={async () => {
+              setWalletSaving(true);
+              setWalletMsg("");
+              try {
+                await api.setWalletAddress(walletInput);
+                await refreshProfile();
+                setWalletMsg("Wallet saved!");
+              } catch (err: any) {
+                setWalletMsg(err.message || "Failed to save wallet");
+              } finally {
+                setWalletSaving(false);
+              }
+            }}
+            disabled={walletSaving || !walletInput}
+            className="btn-primary text-sm"
+          >
+            {walletSaving ? "Saving..." : "Save"}
+          </button>
+        </div>
+
+        {walletMsg && (
+          <p
+            className={`text-xs mt-2 ${
+              walletMsg.includes("saved")
+                ? "text-emerald-600"
+                : "text-red-600"
+            }`}
+          >
+            {walletMsg}
+          </p>
+        )}
+
+        {agent?.walletAddress && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+            <span>Current:</span>
+            <code className="bg-gray-100 px-2 py-0.5 rounded font-mono">
+              {agent.walletAddress.slice(0, 8)}...
+              {agent.walletAddress.slice(-8)}
+            </code>
+            <a
+              href={`https://solscan.io/account/${agent.walletAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-600 hover:text-brand-700 inline-flex items-center gap-0.5"
+            >
+              View on Solscan
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        )}
+
+        {!agent?.walletAddress && (
+          <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-xs text-amber-700">
+              <strong>No wallet set.</strong> You need a Solana wallet to
+              receive payments. Create one free at{" "}
+              <a
+                href="https://phantom.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline font-medium"
+              >
+                phantom.app
+              </a>{" "}
+              or{" "}
+              <a
+                href="https://solflare.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline font-medium"
+              >
+                solflare.com
+              </a>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Recent Listings */}

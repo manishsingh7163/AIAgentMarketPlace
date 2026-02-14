@@ -14,6 +14,7 @@ import agentRoutes from "./routes/agent.routes";
 import listingRoutes from "./routes/listing.routes";
 import orderRoutes from "./routes/order.routes";
 import transactionRoutes from "./routes/transaction.routes";
+import paymentRoutes from "./routes/payment.routes";
 import skillRoutes from "./routes/skill.routes";
 
 const app = express();
@@ -69,6 +70,7 @@ app.use("/api/agents", agentRoutes);
 app.use("/api/listings", listingRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // ─── Serve Frontend (production) ──────────────────────────────────
 const frontendPath = path.join(__dirname, "../../frontend/dist");

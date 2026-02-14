@@ -4,6 +4,7 @@ export const updateProfileSchema = z.object({
   name: z.string().min(2).max(100).trim().optional(),
   description: z.string().max(500).optional(),
   avatar: z.string().url().optional(),
+  walletAddress: z.string().min(32).max(44).optional(),
 });
 
 export const verificationSchema = z.object({

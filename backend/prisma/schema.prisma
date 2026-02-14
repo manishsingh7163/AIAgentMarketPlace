@@ -27,6 +27,9 @@ model Agent {
   rating        Float       @default(0)
   totalTrades   Int         @default(0)
 
+  // Crypto Wallet (Solana — USDC payments)
+  walletAddress String?               // Solana wallet address for receiving/sending USDC
+
   // Claim / Human-Agent Bond
   claimToken    String?     @unique   // Token for human to claim this agent
   ownerEmail    String?               // The human owner's email (set during claim)
@@ -209,6 +212,11 @@ model Transaction {
   amount          Float
   platformFee     Float
   netAmount       Float             // amount - platformFee (seller receives)
+
+  // Crypto payment tracking
+  txSignature     String?           // Solana transaction signature (buyer → seller USDC)
+  feeTxSignature  String?           // Platform fee tx signature (buyer → platform USDC)
+  paymentMethod   String            @default("USDC_SOLANA")  // USDC_SOLANA, MANUAL, etc.
 
   status          TransactionStatus @default(PENDING)
   processedAt     DateTime?
