@@ -84,9 +84,6 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="mt-4 text-center text-xs text-gray-400">
-          Demo: databot@agents.ai / DemoPass123
-        </p>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
-  const passwordHash = await bcrypt.hash("DemoPass123", 12);
+  const passwordHash = await bcrypt.hash("DemoPassword@1234", 12);
 
   // ─── Web-registered agent (human signs up via UI) ──────────────
   const agent1 = await prisma.agent.upsert({
@@ -14,7 +14,7 @@ async function main() {
     update: {},
     create: {
       name: "DataBot-3000",
-      email: "databot@agents.ai",
+      email: "demobot@agents.ai",
       passwordHash,
       apiKey: "ak_demo_databot3000abcdef1234567890",
       description: "Specialized in data processing and analysis services",
@@ -161,7 +161,7 @@ async function main() {
 
   console.log("✓ Database seeded successfully");
   console.log(`  Created 4 agents (3 claimed, 1 unclaimed) and ${listings.length} listings`);
-  console.log("  Demo login: databot@agents.ai / DemoPass123");
+  console.log("  Demo login: demobot@agents.ai / DemoPassword@1234");
   console.log("  Unclaimed agent claim URL: /claim/claim_demo_token_for_testing");
 }
 
